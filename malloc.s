@@ -1,6 +1,5 @@
 .section .data
-	STR: .string "Hello, world!"
-
+	STR: .string "Hello, world!\n"
 .section .text
 .globl main
 main:

@@ -1,0 +1,1 @@
+    #ld malloc.o -o malloc -dynamic-linker ${LIBS} -lc 
