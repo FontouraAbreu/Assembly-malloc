@@ -10,7 +10,7 @@ LIBS_2 = \
 /usr/lib/crti.o \
 /usr/lib/crtn.o
 
-all: force
+all: malloc
 
 malloc: malloc.o
 	ld malloc.o -o malloc -dynamic-linker ${LIBS} -lc 
