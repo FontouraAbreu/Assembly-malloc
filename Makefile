@@ -1,27 +1,17 @@
-LIBS = \
-/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2 \
-/usr/lib/x86_64-linux-gnu/crt1.o \
-/usr/lib/x86_64-linux-gnu/crti.o \
-/usr/lib/x86_64-linux-gnu/crtn.o 
+CC = gcc
+CFLAGS = -g -Wall -no-pie
+PROG = malloc
 
-LIBS_2 = \
-/lib/ld-linux-x86-64.so.2 \
-/usr/lib/crt1.o \
-/usr/lib/crti.o \
-/usr/lib/crtn.o
+all: $(PROG)
 
-all: malloc
+$(PROG): main.o malloc.o
+	$(CC) $(CFLAGS) -o $(PROG) main.o malloc.o 
 
-malloc: malloc.o
-	ld malloc.o -o malloc -dynamic-linker ${LIBS} -lc 
-	@rm -rf malloc.o
-
-force: malloc.o
-	ld malloc.o -o malloc -dynamic-linker ${LIBS_2} -lc 
-	@rm -rf malloc.o
+main.o: main.c
+	$(CC) $(CFLAGS) -c main.c -o main.o
 
 malloc.o: malloc.s
 	as malloc.s -o malloc.o
 
 purge:
-	rm -rf malloc.o malloc
+	rm -rf *.o  $(PROG) 
