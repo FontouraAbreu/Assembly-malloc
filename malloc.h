@@ -1,6 +1,7 @@
-void* IniciaAlocador();
-void* FinalizaAlocador();
+void* iniciaAlocador();
+void finalizaAlocador();
 
-void* AumentaHeap(long k);
+void* alocaMem(long k);
+long liberaMem(void* n);
 
 void Print();
