@@ -1,10 +1,9 @@
-void* iniciaAlocador();
+void iniciaAlocador();
 void finalizaAlocador();
 
 void* getTopoInicialHeap();
 
 long* alocaMem(long k);
 long liberaMem(void* n);
-void* achaLivre();
+void* achaLivre(long s);
 
-void Print();

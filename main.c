@@ -18,23 +18,18 @@ int main(){
 	printf("a\b");
 
 //##############################################################################
-	a = iniciaAlocador();
-	printf("%p\n", a);
+	iniciaAlocador();
 	
 	a = alocaMem(100);
-	b = alocaMem(300);
-	c = alocaMem(200);
-
+	b = alocaMem(200);
+	c = alocaMem(300);
 	printf("%p\n%p\n%p\n\n", a, b, c);
-
-	if(achaLivre() != NULL) printf("Não há nodos livres ainda\n");
-	
-	liberaMem(c);
-	printf("%p livre\n\n", achaLivre());
-
+	liberaMem(a);
 	liberaMem(b);
-	printf("%p livre\n\n", achaLivre());
+	liberaMem(c);
 
+	printf("%p\n", achaLivre(100));
+	printf("%p\n", achaLivre(200));
 
 	finalizaAlocador();
 	return 0;
