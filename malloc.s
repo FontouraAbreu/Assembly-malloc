@@ -4,6 +4,16 @@
 	TopoHeap: .quad 0
 .section .text
 
+.globl getTopoInicialHeap
+getTopoInicialHeap:
+	pushq %rbp
+	movq %rsp, %rbp
+
+	movq TopoInicialHeap, %rax
+
+	popq %rbp
+	ret
+
 .globl iniciaAlocador
 iniciaAlocador:
     pushq %rbp
@@ -69,6 +79,50 @@ alocaMem:
 	addq $8, %rax # Salvando inicio dos dados para retorno em var
 
 	addq $16, %rbp
+	popq %rbp
+	ret
+
+.globl achaLivre
+achaLivre:
+#	struct node{
+#		long ocp; 1 ou 0 se bloco está ocupado
+#		long size; tamanho do bloco
+#		long data[size]; dados 
+#}
+# 
+#	nodo_t n = topoInicialHeap
+#	while(n.ocp != 0)
+#		n += 8
+#		movq (n), m
+#		addq m, n
+	pushq %rbp
+	movq %rsp, %rbp
+	subq $8, %rbp
+	movq $0, -8(%rbp) # value of the pointer to bem returned (start in NULL)
+
+	movq TopoInicialHeap, %rdi # ocp do primeiro nodo
+	
+	init_while:
+	cmpq $0, (%rdi)
+	je retorna_nodo
+	
+	addq $8, %rdi
+	movq (%rdi), %rcx
+	addq $8, %rdi
+	addq %rcx, %rdi
+	
+	cmpq %rdi, TopoHeap
+	je fim_while
+
+	jmp init_while
+	fim_while:
+	movq -8(%rbp), %rdi
+
+ 	retorna_nodo:	
+	addq $16, %rdi
+	movq %rdi, %rax
+
+	addq $8, %rbp
 	popq %rbp
 	ret
 

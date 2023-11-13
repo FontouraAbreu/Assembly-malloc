@@ -2,8 +2,12 @@
 #include <string.h>
 #include "malloc.h"
 
-void *a, *b, *c;
-long d;
+long *a, *b, *c, *d;
+long e;
+
+void printBlock(long *k){
+	printf("ponteiro:\t%p\nocp:\t\t%ld\nsize:\t\t%ld\n\n", k, *(k-2), *(k-1));
+}
 
 int main(){
 	/*
@@ -15,24 +19,22 @@ int main(){
 
 //##############################################################################
 	a = iniciaAlocador();
-		
-	b = alocaMem(1000);
-	printf("%p\n%p\n%ld\n\n", a, b, (long) (b-a));
-
-	c = alocaMem(100);
-	printf("%p\n%p\n%ld\n\n", b, c, (long) (c-b));
+	printf("%p\n", a);
 	
-	for(int i = 0; i < 3; i++){
-		d = liberaMem(b);
-	 	if(d) printf("b corretamente desalocado\n");
-		if(!d) printf("b já foi desalocado antes, abortando...\n");
-	}
+	a = alocaMem(100);
+	b = alocaMem(300);
+	c = alocaMem(200);
 
-	for(int i = 0; i < 2; i++){
-		d = liberaMem(c);
-	 	if(d) printf("c corretamente desalocado\n");
-		if(!d) printf("c já foi desalocado antes, abortando...\n");
-	}
+	printf("%p\n%p\n%p\n\n", a, b, c);
+
+	if(achaLivre() != NULL) printf("Não há nodos livres ainda\n");
+	
+	liberaMem(c);
+	printf("%p livre\n\n", achaLivre());
+
+	liberaMem(b);
+	printf("%p livre\n\n", achaLivre());
+
 
 	finalizaAlocador();
 	return 0;
