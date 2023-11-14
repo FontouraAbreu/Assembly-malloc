@@ -95,16 +95,18 @@ achaLivre:
 	addq %rcx, %rdi # %rdi contém endereço do início do próximo nodo
 	
 	cmpq %rdi, TopoHeap # Se verdadeiro, chegou ao fim sem achar nodos livres
-	je fim_while
+	je fim_lista
 
 	jmp init_while
-	fim_while:
+	fim_lista:
 	movq -8(%rbp), %rdi
+	jmp return
 
  	retorna_nodo:	
-	addq $16, %rdi # soma 16 para apontar para data
-	movq %rdi, %rax
+	addq $16, %rdi # soma 16 para apontar para data	
 
+	return:
+	movq %rdi, %rax
 	addq $16, %rbp
 	popq %rbp
 	ret

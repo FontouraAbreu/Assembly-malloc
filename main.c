@@ -26,10 +26,10 @@ int main(){
 	printf("%p\n%p\n%p\n\n", a, b, c);
 	liberaMem(a);
 	liberaMem(b);
-	liberaMem(c);
 
 	printf("%p\n", achaLivre(100));
-	printf("%p\n", achaLivre(200));
+	d = achaLivre(200);
+	if (d != NULL) printf("%p\n", d);
 
 	finalizaAlocador();
 	return 0;
