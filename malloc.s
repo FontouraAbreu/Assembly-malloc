@@ -4,6 +4,7 @@
 #		long size;			Tamanho do nodo
 #		void data[size]		seção de dados alocada
 #	}
+# malloc(10) - 1|10|BBBBBBBBBB
 .section .data
     TopoInicialHeap: .quad 0
 	TopoHeap: .quad 0
@@ -80,13 +81,16 @@ achaLivre:
 	movq TopoInicialHeap, %rdi # ocp do primeiro nodo
 	
 	init_while:
+	cmpq %rdi, TopoHeap # Se verdadeiro, chegou ao fim sem achar nodos livres
+	je fim_lista
+
 	cmpq $0, (%rdi)
 	jne continue
 	movq %rdi, %rdx
 	addq $8, %rdx
 	movq (%rdx), %rdx
 	cmpq %rdx, -16(%rbp)
-	jle retorna_nodo
+	je retorna_nodo
 	
 	continue:
 	addq $8, %rdi
@@ -94,9 +98,6 @@ achaLivre:
 	addq $8, %rdi 
 	addq %rcx, %rdi # %rdi contém endereço do início do próximo nodo
 	
-	cmpq %rdi, TopoHeap # Se verdadeiro, chegou ao fim sem achar nodos livres
-	je fim_lista
-
 	jmp init_while
 	fim_lista:
 	movq -8(%rbp), %rdi
@@ -120,8 +121,15 @@ alocaMem:
 	pushq %rbp
 	movq %rsp, %rbp
 	subq $16, %rbp # alocando espaço para variáveis locais
-
 	movq %rdi, -8(%rbp) # valor do argumento com tamanho do bloco
+
+	call achaLivre
+	movq -8(%rbp), %rdi
+	movq %rax, %rbx
+	subq $16, %rbx
+	cmpq $0, %rax
+	jne valores
+
 	movq TopoHeap, %rdx
 	movq %rdx, -16(%rbp) # Salvando o endereço de ocp do bloco a ser alocado
 
@@ -136,6 +144,8 @@ alocaMem:
 	# Bloco já alocado, adicionar valores corretos no controle #################
 
 	movq -16(%rbp), %rbx # %rbx contém o endereço de ocp do bloco
+	
+	valores:
 	movq %rbx, %rcx 
 	addq $8, %rcx # %rcx contém o endereço de size do bloco
 
@@ -146,6 +156,7 @@ alocaMem:
 	movq %rcx, %rax
 	addq $8, %rax # Salvando inicio dos dados para retorno em var
 
+	retorno:
 	addq $16, %rbp
 	popq %rbp
 	ret
