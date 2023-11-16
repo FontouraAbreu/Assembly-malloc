@@ -19,13 +19,24 @@ int main(){
 
 //##############################################################################
 	iniciaAlocador();
+
 	a = alocaMem(100);
+	printBlock(a);
+	liberaMem(a);
+
 	b = alocaMem(200);
-	c = alocaMem(300);
-	printf("a:\t%p\nb:\t%p\nc:\t%p\n", a, b, c);
+	printBlock(b);
 	liberaMem(b);
+
+	c = alocaMem(100);
+	printBlock(c);
+
 	d = alocaMem(200);
-	printf("d:\t%p\n", d);
+	printBlock(d);
+
+	liberaMem(c);
+	liberaMem(d);
+
 	finalizaAlocador();
 	return 0;
 }

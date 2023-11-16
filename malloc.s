@@ -73,7 +73,7 @@ finalizaAlocador:
 achaLivre:
 	pushq %rbp
 	movq %rsp, %rbp
-	subq $16, %rbp
+	subq $16, %rsp
 
 	movq $0, -8(%rbp) # valor do ponteiro a ser retornado (começa em null)
 	movq %rdi, -16(%rbp) # tamanho minimo do nodo
@@ -108,28 +108,19 @@ achaLivre:
 
 	return:
 	movq %rdi, %rax
-	addq $16, %rbp
+	addq $16, %rsp
 	popq %rbp
 	ret
 ################################################################################
 
 
-#	void* alocaMem(long s)	####################################################
-#	recebe o número de bytes a ser alocado em s	################################
-#	aloca o nodo e retorna o ponteiro para o início dos dados do nodo	########
-alocaMem:
+
+aumenta_brk:
 	pushq %rbp
 	movq %rsp, %rbp
-	subq $16, %rbp # alocando espaço para variáveis locais
+	
+	subq $16, %rsp # alocando espaço para variáveis locais
 	movq %rdi, -8(%rbp) # valor do argumento com tamanho do bloco
-
-	call achaLivre
-	movq -8(%rbp), %rdi
-	movq %rax, %rbx
-	subq $16, %rbx
-	cmpq $0, %rax
-	jne valores
-
 	movq TopoHeap, %rdx
 	movq %rdx, -16(%rbp) # Salvando o endereço de ocp do bloco a ser alocado
 
@@ -144,8 +135,6 @@ alocaMem:
 	# Bloco já alocado, adicionar valores corretos no controle #################
 
 	movq -16(%rbp), %rbx # %rbx contém o endereço de ocp do bloco
-	
-	valores:
 	movq %rbx, %rcx 
 	addq $8, %rcx # %rcx contém o endereço de size do bloco
 
@@ -156,8 +145,45 @@ alocaMem:
 	movq %rcx, %rax
 	addq $8, %rax # Salvando inicio dos dados para retorno em var
 
+	addq $16, %rsp
+	
+	popq %rbp
+	ret 
+
+
+
+
+aloca_vazio:
+	pushq %rbp
+	movq %rsp, %rbp
+
+	movq $1, -16(%rdi)
+	movq %rdi, %rax	
+
+	popq %rbp
+	ret
+
+#	void* alocaMem(long s)	####################################################
+#	recebe o número de bytes a ser alocado em s	################################
+#	aloca o nodo e retorna o ponteiro para o início dos dados do nodo	########
+alocaMem:
+	pushq %rbp
+	movq %rsp, %rbp
+
+	pushq %rdi
+	call achaLivre
+	popq %rdi
+	cmpq $0, %rax
+	je aloca_novo
+
+	movq %rax, %rdi
+	call aloca_vazio
+	jmp retorno
+	
+
+	aloca_novo:
+	call aumenta_brk
 	retorno:
-	addq $16, %rbp
 	popq %rbp
 	ret
 ################################################################################
