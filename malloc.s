@@ -84,13 +84,13 @@ achaLivre:
 	cmpq %rdi, TopoHeap # Se verdadeiro, chegou ao fim sem achar nodos livres
 	je fim_lista
 
-	cmpq $0, (%rdi)
+	cmpq $0, (%rdi) # checa para ocp vazio
 	jne continue
 	movq %rdi, %rdx
 	addq $8, %rdx
 	movq (%rdx), %rdx
-	cmpq %rdx, -16(%rbp)
-	je retorna_nodo
+	cmpq %rdx, -16(%rbp) # checa se tamanho cabe
+	jbe retorna_nodo
 	
 	continue:
 	addq $8, %rdi
@@ -115,6 +115,9 @@ achaLivre:
 
 
 
+
+# void* aumenta_brk(long s) ####################################################
+# Aloca nodo no fim da heap, aumentando o valor de brk #########################
 aumenta_brk:
 	pushq %rbp
 	movq %rsp, %rbp
@@ -149,10 +152,12 @@ aumenta_brk:
 	
 	popq %rbp
 	ret 
+################################################################################
 
 
 
-
+# void* aloca_vazio(void* p) ###################################################
+# Recebe um endereço, coloca 1 em ocp e retorna ################################
 aloca_vazio:
 	pushq %rbp
 	movq %rsp, %rbp
@@ -162,6 +167,9 @@ aloca_vazio:
 
 	popq %rbp
 	ret
+################################################################################
+
+
 
 #	void* alocaMem(long s)	####################################################
 #	recebe o número de bytes a ser alocado em s	################################

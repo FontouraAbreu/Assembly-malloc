@@ -31,11 +31,8 @@ int main(){
 	c = alocaMem(100);
 	printBlock(c);
 
-	d = alocaMem(200);
+	d = alocaMem(150);
 	printBlock(d);
-
-	liberaMem(c);
-	liberaMem(d);
 
 	finalizaAlocador();
 	return 0;
