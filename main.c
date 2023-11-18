@@ -2,37 +2,31 @@
 #include <string.h>
 #include "malloc.h"
 
-long *a, *b, *c, *d;
-long e;
-
-void printBlock(long *k){
-	printf("ponteiro:\t%p\nocp:\t\t%ld\nsize:\t\t%ld\n\n", k, *(k-2), *(k-1));
-}
+void *a, *b, *c, *d;
 
 int main(){
-	/*
-	* printf aloca 135618 bytes
-	* chama um printf que não printa nada só pra que esse bloco seja
-	* alocado antes e não interfira no Alocador desenvolvido 
-	*/
-	printf("a\b");
-
-//##############################################################################
 	iniciaAlocador();
 
-	a = alocaMem(100);
-	printBlock(a);
+	a = alocaMem(10);
+	b = alocaMem(5);
+	Print();
+
 	liberaMem(a);
-
-	b = alocaMem(200);
-	printBlock(b);
+	Print();
 	liberaMem(b);
+	Print();
+	
+ 	c = alocaMem(31);
+	Print();
 
-	c = alocaMem(100);
-	printBlock(c);
+	liberaMem(c);
+	Print();
 
-	d = alocaMem(150);
-	printBlock(d);
+	d =	alocaMem(32);
+	Print();
+
+	liberaMem(d);
+	Print();
 
 	finalizaAlocador();
 	return 0;

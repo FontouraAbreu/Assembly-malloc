@@ -8,27 +8,15 @@
 .section .data
     TopoInicialHeap: .quad 0
 	TopoHeap: .quad 0
+	STR_HT: .string "################"
+	STR_A:	.string "+"
+	STR_F:	.string "-"
 .section .text
-.globl getTopoInicialHeap
 .globl iniciaAlocador
 .globl finalizaAlocador
 .globl alocaMem
-.globl achaLivre
 .globl liberaMem
-
-#	void* getTopoInicialHeap()	################################################
-#	devolve o valor do topo inicial da heap	####################################
-getTopoInicialHeap:
-	pushq %rbp
-	movq %rsp, %rbp
-
-	movq TopoInicialHeap, %rax
-
-	popq %rbp
-	ret
-################################################################################
-
-
+.globl Print
 
 #	void iniciaAlocador()	####################################################
 #	inicia o brk	############################################################
@@ -219,5 +207,129 @@ liberaMem:
 	movq -8(%rbp), %rax
 	addq $8, %rbp
 	popq %rbp
+
+
+	call mergeNodes
+	call mergeNodes
+
 	ret
 ################################################################################
+
+
+
+# 	void mergeNodes() ##########################################################
+mergeNodes:
+	pushq %rbp
+	movq %rsp, %rbp
+	subq $8, %rsp
+
+	movq TopoInicialHeap, %rax
+	movq %rax, -8(%rsp)
+	
+	while:
+		movq -8(%rsp), %rdi # ponteiro nodo p1
+		movq (%rdi), %rbx # ocp de p1
+		movq 8(%rdi), %rcx # size de p1
+	
+		cmpq TopoHeap, %rdi
+		je fim
+
+		cmpq $0, %rbx
+		jne iter
+		
+		movq %rdi, %rdx
+		addq $16, %rdx 
+		addq %rcx, %rdx # ponteiro nodo p2
+
+		cmpq TopoHeap, %rdx
+		je fim
+
+		cmpq $0, (%rdx)
+		jne iter
+
+		movq 8(%rdx), %rax # size de p2
+		addq %rax, %rcx 
+		addq $16, %rcx # rcx contém o tamanho do novo bloco
+		
+		movq %rcx, 8(%rdi)
+		
+		iter:
+			addq %rcx, %rdi
+			addq $16, %rdi
+			movq %rdi, -8(%rsp)
+			jmp while
+
+	fim:
+	addq $8, %rsp
+	pop %rbp
+	ret
+################################################################################
+
+
+
+# void Print() #################################################################
+Print:
+	pushq %rbp
+	movq %rsp, %rbp
+	subq $16, %rsp
+	
+	movq TopoInicialHeap, %rbx
+	movq %rbx, -16(%rsp)
+	movq TopoHeap, %rbx
+	movq %rbx, -8(%rsp)
+
+	movq -16(%rsp), %rbx 
+	while_exterior:
+		cmpq %rbx, -8(%rsp)
+		je topo 	
+
+		movq $1, %rax
+		movq $1, %rdi # set up to write instruction
+
+		movq $16, %rdx
+		movq $STR_HT, %rsi # printando os 16 # de um nodo
+		syscall
+
+		cmpq $1, (%rbx)	# se tem 1 printa +, se não printa menos
+		je alocado
+		movq $STR_F, %rsi
+		jmp fim_if
+		alocado:
+		movq $STR_A, %rsi
+		fim_if:
+
+		addq $8, %rbx
+		movq (%rbx), %r9
+	
+		movq $0, %r10
+		movq $1, %rdx
+		while_size:
+		cmpq %r10, %r9
+		je fim_while
+			movq $1, %rax
+			syscall
+			addq $1, %r10
+			jmp while_size
+		fim_while:
+		
+		addq $8, %rbx
+		addq %r9, %rbx
+		jmp while_exterior
+	
+	topo:
+	movq $1, %rax # valor syscall write
+	movq $1, %rdi # arquivo apontado (stdin)
+	movq $1, %rdx # tamanho string 
+	push $'\n'	
+	movq %rsp, %rsi # string
+	syscall
+	movq $1, %rax
+	syscall
+	popq %rsi
+
+
+	addq $16, %rsp
+	pop %rbp
+	ret
+################################################################################
+
