@@ -16,7 +16,7 @@
 .globl finalizaAlocador
 .globl alocaMem
 .globl liberaMem
-.globl Print
+.globl imprimeMapa
 
 #	void iniciaAlocador()	####################################################
 #	inicia o brk	############################################################
@@ -268,7 +268,7 @@ mergeNodes:
 
 
 # void Print() #################################################################
-Print:
+imprimeMapa:
 	pushq %rbp
 	movq %rsp, %rbp
 	subq $16, %rsp
@@ -290,7 +290,7 @@ Print:
 		movq $STR_HT, %rsi # printando os 16 # de um nodo
 		syscall
 
-		cmpq $1, (%rbx)	# se tem 1 printa +, se não printa menos
+		cmpq $1, (%rbx)	# se tem 1 printa "+", se não printa "-"
 		je alocado
 		movq $STR_F, %rsi
 		jmp fim_if
@@ -299,11 +299,11 @@ Print:
 		fim_if:
 
 		addq $8, %rbx
-		movq (%rbx), %r9
+		movq (%rbx), %r9 # salvando o tamanho
 	
 		movq $0, %r10
 		movq $1, %rdx
-		while_size:
+		while_size: # while(cnt < node->size)
 		cmpq %r10, %r9
 		je fim_while
 			movq $1, %rax
@@ -313,7 +313,7 @@ Print:
 		fim_while:
 		
 		addq $8, %rbx
-		addq %r9, %rbx
+		addq %r9, %rbx	# proximo nodo
 		jmp while_exterior
 	
 	topo:

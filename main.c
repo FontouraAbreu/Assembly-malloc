@@ -1,33 +1,23 @@
 #include <stdio.h>
-#include <string.h>
 #include "malloc.h"
+#include <string.h>
 
-void *a, *b, *c, *d;
-
-int main(){
+int main () {
 	iniciaAlocador();
 
-	a = alocaMem(10);
-	b = alocaMem(5);
-	Print();
-
+	char *a = (char *) alocaMem(8 * sizeof(char));
+	strcpy(a, "testando");
+	printf("%s\n", a);
+	imprimeMapa();
 	liberaMem(a);
-	Print();
+	imprimeMapa();
+
+	long *b = (long *) alocaMem(sizeof(long));
+	*b = 10028899812;
+	printf("%ld\n", *b);
+	imprimeMapa();
 	liberaMem(b);
-	Print();
-	
- 	c = alocaMem(31);
-	Print();
-
-	liberaMem(c);
-	Print();
-
-	d =	alocaMem(32);
-	Print();
-
-	liberaMem(d);
-	Print();
+	imprimeMapa();
 
 	finalizaAlocador();
-	return 0;
 }
