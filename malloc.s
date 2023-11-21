@@ -144,15 +144,31 @@ aumenta_brk:
 
 
 
-# void* aloca_vazio(void* p) ###################################################
-# Recebe um endereço, coloca 1 em ocp e retorna ################################
+# void* aloca_vazio(void* p, long size) ########################################
+# Recebe um endereço, coloca 1 em ocp e cria nodo ##############################
+# vazio com o resto (se tiver) #################################################
 aloca_vazio:
 	pushq %rbp
 	movq %rsp, %rbp
+	subq $16, %rsp
+	movq %rdi, -8(%rsp)
 
 	movq $1, -16(%rdi)
-	movq %rdi, %rax	
+	movq -8(%rdi), %rcx # tamanho nodo encontrado
+	subq %rsi, %rcx
+	cmpq $16, %rcx # vê se sobra é maior que o necessário para header
+	jle aloca_tudo	
 
+	movq %rsi, -8(%rdi)
+	addq %rsi, %rdi
+	
+	movq $0, (%rdi)
+	subq $16, %rcx
+	movq %rcx, 8(%rdi)
+	
+	aloca_tudo:
+	movq -8(%rsp), %rax
+	addq $16, %rsp
 	popq %rbp
 	ret
 ################################################################################
@@ -172,6 +188,7 @@ alocaMem:
 	cmpq $0, %rax
 	je aloca_novo
 
+	movq %rdi, %rsi
 	movq %rax, %rdi
 	call aloca_vazio
 	jmp retorno

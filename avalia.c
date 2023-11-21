@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "malloc.h"
+#include "meuAlocador.h"
 
 int main (long int argc, char** argv) {
   void *a,*b,*c,*d,*e;
