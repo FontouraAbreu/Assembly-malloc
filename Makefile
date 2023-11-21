@@ -1,17 +1,17 @@
 CC = gcc
 CFLAGS = -g -Wall -no-pie -g
-PROG = malloc
+PROG = avalia
 
 all: $(PROG)
 
-$(PROG): main.o malloc.o
-	$(CC) $(CFLAGS) -o $(PROG) main.o malloc.o 
+$(PROG): avalia.o meuAlocador.o
+	$(CC) $(CFLAGS) -o $(PROG) avalia.o meuAlocador.o 
 
-main.o: main.c
-	$(CC) $(CFLAGS) -c main.c -o main.o
+avalia.o: avalia.c
+	$(CC) $(CFLAGS) -c avalia.c -o avalia.o
 
-malloc.o: malloc.s
-	as malloc.s -o malloc.o -g
+meuAlocador.o: meuAlocador.s
+	as meuAlocador.s -o meuAlocador.o -g
 
 purge:
 	rm -rf *.o  $(PROG) 

@@ -56,9 +56,9 @@ finalizaAlocador:
 
 
 
-#	void* achaLivre()	########################################################
-#	procura pelo primeiro nodo livre a partir do topoInicialHeap	############
-achaLivre:
+#	void* firstFit()	############################################################
+#	procura pelo primeiro nodo livre a partir do topoInicialHeap	################
+firstFit:
 	pushq %rbp
 	movq %rsp, %rbp
 	subq $16, %rsp
@@ -103,7 +103,7 @@ achaLivre:
 
 
 
-
+# void* worst_fit
 # void* aumenta_brk(long s) ####################################################
 # Aloca nodo no fim da heap, aumentando o valor de brk #########################
 aumenta_brk:
@@ -183,7 +183,7 @@ alocaMem:
 	movq %rsp, %rbp
 
 	pushq %rdi
-	call achaLivre
+	call firstFit
 	popq %rdi
 	cmpq $0, %rax
 	je aloca_novo
