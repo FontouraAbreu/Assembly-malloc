@@ -44,6 +44,5 @@ int main (long int argc, char** argv) {
   liberaMem(e);
   imprimeMapa();
    // 4) volta ao estado inicial
-
   finalizaAlocador();
 }

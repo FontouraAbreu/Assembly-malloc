@@ -17,6 +17,7 @@
 .globl alocaMem
 .globl liberaMem
 .globl imprimeMapa
+.globl worstFit
 
 #	void iniciaAlocador()	####################################################
 #	inicia o brk	############################################################
@@ -56,7 +57,7 @@ finalizaAlocador:
 
 
 
-#	void* firstFit()	############################################################
+#	void* firstFit(long s)	######################################################
 #	procura pelo primeiro nodo livre a partir do topoInicialHeap	################
 firstFit:
 	pushq %rbp
@@ -103,7 +104,60 @@ firstFit:
 
 
 
-# void* worst_fit
+# void* worstFit(long s) #######################################################
+# acha o maior nodo livre ######################################################
+worstFit:
+	pushq %rbp
+	movq %rsp, %rbp
+	subq $24, %rsp # -8(%rsp) é o endereço do maior nodo, -16(%rsp) é o tamanho 
+	movq $0, -8(%rsp)
+	movq $0, -16(%rsp)
+	movq %rdi, -24(%rsp)
+	
+	movq TopoInicialHeap, %rdi	
+
+	wf_while:
+		cmpq %rdi, TopoHeap
+		je wf_fim_while # se chegou no fim, retorna
+
+		movq 8(%rdi), %rbx
+		movq -16(%rsp), %r9
+		cmpq %r9, %rbx
+		jl wf_iter_while # se tamanho do nodo não for maior que o já achado
+
+		movq (%rdi), %r9
+		cmpq $0, %r9
+		jne wf_iter_while # se não tiver vazio, vai pro próximo
+
+		movq %rdi, -8(%rsp)
+		movq %rbx, -16(%rsp)
+
+		wf_iter_while:
+			addq %rbx, %rdi
+			addq $16, %rdi
+			jmp wf_while
+		
+	wf_fim_while:
+	movq -24(%rsp), %rbx # tamanho necessário
+	movq -16(%rsp), %rcx # tamanho achado
+	cmpq %rcx, %rbx
+	jbe wf_node_ret
+
+	movq $0, %rax
+	jmp wf_return 
+
+	wf_node_ret:
+	movq -8(%rsp), %rax
+	addq $16, %rax
+
+	wf_return:
+	addq $24, %rsp
+	popq %rbp
+	ret	
+################################################################################
+
+
+
 # void* aumenta_brk(long s) ####################################################
 # Aloca nodo no fim da heap, aumentando o valor de brk #########################
 aumenta_brk:
@@ -183,7 +237,7 @@ alocaMem:
 	movq %rsp, %rbp
 
 	pushq %rdi
-	call firstFit
+	call worstFit
 	popq %rdi
 	cmpq $0, %rax
 	je aloca_novo
