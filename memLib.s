@@ -12,35 +12,35 @@
 	STR_A:	.string "+"
 	STR_F:	.string "-"
 .section .text
-.globl iniciaAlocador
-.globl finalizaAlocador
-.globl alocaMem
-.globl liberaMem
-.globl imprimeMapa
+.globl initAllocator
+.globl endAllocator
+.globl allocBlk
+.globl freeBlk
+.globl printHeap
 
-#	void iniciaAlocador()	####################################################
-#	inicia o brk	############################################################
-iniciaAlocador:
-    pushq %rbp
-    movq %rsp, %rbp
+#	void initAllocator()	########################################################
+#	inicia o brk	################################################################
+initAllocator:    
+	pushq %rbp
+  movq %rsp, %rbp
 
-    movq $12, %rax # syscall brk
+  movq $12, %rax # syscall brk
 	movq $0, %rdi
-    syscall
+  syscall
 
 	# armazena o retorno da syscall em TopoInicialHeap e TopoHeap
-    movq %rax, TopoInicialHeap
+  movq %rax, TopoInicialHeap
 	movq %rax, TopoHeap
 
-    popq %rbp
-    ret
+  popq %rbp
+  ret
 ################################################################################
 
 
 
-#	void finalizaAlocador()	####################################################
+#	void endAllocator()	####################################################
 #	finaliza o alocador retornando pro valor inicial do brk	####################
-finalizaAlocador:
+endAllocator:
 	pushq %rbp
 	movq %rsp, %rbp
 
@@ -56,7 +56,7 @@ finalizaAlocador:
 
 
 
-#	void* firstFit()	############################################################
+#	void* firstFit(long s)	######################################################
 #	procura pelo primeiro nodo livre a partir do topoInicialHeap	################
 firstFit:
 	pushq %rbp
@@ -103,7 +103,114 @@ firstFit:
 
 
 
-# void* worst_fit
+# void* worstFit(long s) #######################################################
+# acha o maior nodo livre ######################################################
+worstFit:
+	pushq %rbp
+	movq %rsp, %rbp
+	subq $24, %rsp # -8(%rsp) é o endereço do maior nodo, -16(%rsp) é o tamanho 
+	movq $0, -8(%rsp)
+	movq $0, -16(%rsp)
+	movq %rdi, -24(%rsp)
+	
+	movq TopoInicialHeap, %rdi	
+
+	wf_while:
+		cmpq %rdi, TopoHeap
+		je wf_fim_while # se chegou no fim, retorna
+
+		movq 8(%rdi), %rbx
+		movq -16(%rsp), %r9
+		cmpq %r9, %rbx
+		jl wf_iter_while # se tamanho do nodo não for maior que o já achado
+
+		movq (%rdi), %r9
+		cmpq $0, %r9
+		jne wf_iter_while # se não tiver vazio, vai pro próximo
+
+		movq %rdi, -8(%rsp)
+		movq %rbx, -16(%rsp)
+
+		wf_iter_while:
+			addq %rbx, %rdi
+			addq $16, %rdi
+			jmp wf_while
+		
+	wf_fim_while:
+	movq -24(%rsp), %rbx # tamanho necessário
+	movq -16(%rsp), %rcx # tamanho achado
+	cmpq %rcx, %rbx
+	jbe wf_node_ret
+
+	movq $0, %rax
+	jmp wf_return 
+
+	wf_node_ret:
+	movq -8(%rsp), %rax
+	addq $16, %rax
+
+	wf_return:
+	addq $24, %rsp
+	popq %rbp
+	ret	
+################################################################################
+
+
+
+# void* bestFit(long s) ########################################################
+# acha o menor nodo livre ######################################################
+bestFit:
+	pushq %rbp
+	movq %rsp, %rbp
+	subq $24, %rsp # -8(%rsp) é o endereço do maior nodo, -16(%rsp) é o tamanho 
+	movq $0, -8(%rsp)
+	movq $0, -16(%rsp)
+	movq %rdi, -24(%rsp)
+	
+	movq TopoInicialHeap, %rdi	
+
+	bf_while:
+		cmpq %rdi, TopoHeap
+		je bf_fim_while # se chegou no fim, retorna
+
+		movq 8(%rdi), %rbx
+		movq -16(%rsp), %r9
+		cmpq %r9, %rbx
+		jg bf_iter_while # se tamanho do nodo for maior que o já achado
+
+		movq (%rdi), %r9
+		cmpq $0, %r9
+		jne bf_iter_while # se não tiver vazio, vai pro próximo
+
+		movq %rdi, -8(%rsp)
+		movq %rbx, -16(%rsp)
+
+		bf_iter_while:
+			addq %rbx, %rdi
+			addq $16, %rdi
+			jmp bf_while
+		
+	bf_fim_while:
+	movq -24(%rsp), %rbx # tamanho necessário
+	movq -16(%rsp), %rcx # tamanho achado
+	cmpq %rcx, %rbx
+	jbe bf_node_ret
+
+	movq $0, %rax
+	jmp bf_return 
+
+	bf_node_ret:
+	movq -8(%rsp), %rax
+	addq $16, %rax
+
+	bf_return:
+	addq $24, %rsp
+	popq %rbp
+	ret	
+################################################################################
+
+
+
 # void* aumenta_brk(long s) ####################################################
 # Aloca nodo no fim da heap, aumentando o valor de brk #########################
 aumenta_brk:
@@ -175,15 +282,17 @@ aloca_vazio:
 
 
 
-#	void* alocaMem(long s)	####################################################
-#	recebe o número de bytes a ser alocado em s	################################
-#	aloca o nodo e retorna o ponteiro para o início dos dados do nodo	########
-alocaMem:
+#	void* allocBlk(long s)	######################################################
+#	recebe o número de bytes a ser alocado em s	##################################
+#	aloca o nodo e retorna o ponteiro para o início dos dados do nodo	############
+allocBlk:
 	pushq %rbp
 	movq %rsp, %rbp
 
 	pushq %rdi
-	call firstFit
+	#call worstFit
+	#call firstFit
+	call bestFit
 	popq %rdi
 	cmpq $0, %rax
 	je aloca_novo
@@ -203,9 +312,9 @@ alocaMem:
 
 
 
-#	void liberaMem(void* p)	####################################################
+#	void freeBlk(void* p)	####################################################
 #	muda o valor de ocp do nodo para 0	########################################
-liberaMem:
+freeBlk:
 	pushq %rbp
 	movq %rsp, %rbp
 	subq $8, %rbp # retorno: 1 se for desalocado, 0 se já tiver desalocado
@@ -284,8 +393,8 @@ mergeNodes:
 
 
 
-# void Print() #################################################################
-imprimeMapa:
+# void printHeap() #############################################################
+printHeap:
 	pushq %rbp
 	movq %rsp, %rbp
 	subq $16, %rsp

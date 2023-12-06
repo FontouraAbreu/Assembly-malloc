@@ -1,17 +1,17 @@
 CC = gcc
 CFLAGS = -g -Wall -no-pie -g
-PROG = avalia
+PROG = main
 
 all: $(PROG)
 
-$(PROG): avalia.o meuAlocador.o
-	$(CC) $(CFLAGS) -o $(PROG) avalia.o meuAlocador.o 
+$(PROG): main.o memLib.o
+	$(CC) $(CFLAGS) -o $(PROG) main.o memLib.o 
 
-avalia.o: avalia.c
-	$(CC) $(CFLAGS) -c avalia.c -o avalia.o
+main.o: main.c
+	$(CC) $(CFLAGS) -c main.c -o main.o
 
-meuAlocador.o: meuAlocador.s
-	as meuAlocador.s -o meuAlocador.o -g
+memLib.o: memLib.s
+	as memLib.s -o memLib.o -g
 
 purge:
 	rm -rf *.o  $(PROG) 
